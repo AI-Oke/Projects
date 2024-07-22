@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transatlantic Synergy - ACORN Details</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        /* CSS to resize table columns evenly */
+        table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        th, td {
+            width: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-success">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='Version_1/Transatlantic Synergy-logos_transparent.png') }}" alt="Transatlantic Synergy Logo" height="75" class="d-inline-block align-middle">
+            Transatlantic Synergy
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">ACORN Details</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/kmeans.html">KMeans</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forecast.html">Forecast</a>
+                </li>
+            </ul>
+        </div>
+    </nav>     
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <h5>Main Categories</h5>
+                <div class="list-group" id="sidebar">
+                    <!-- Sidebar links will be inserted here via AJAX -->
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h1>ACORN Details</h1>
+                <p>Dataset link: <a href="https://www.kaggle.com/datasets/jeanmidev/smart-meters-in-london">Smart Meters in London</a></p>
+                <form action="/acorn_data" method="POST" class="mb-4">
+                    <label for="acorn">Select ACORN group:</label>
+                    <select name="acorn" id="acorn" class="form-control">
+                        {% for category in acorn_categories %}
+                            <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                </form>
+                <div id="graph-container">
+                    <!-- Graph will be inserted here via AJAX -->
+                </div>
+                <div id="table-container">
+                    <!-- Table will be inserted here via AJAX -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Function to populate the dropdown menu with ACORN categories
+        async function populateDropdown() {
+            const response = await fetch('/acorn_categories', {
+                method: 'GET'
+            });
+            const data = await response.json();
+            const acornCategories = data.acorn_categories;
+            const dropdown = document.getElementById('acorn');
+            
+            // Clear existing options
+            dropdown.innerHTML = '';
+            
+            // Add options to the dropdown
+            acornCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                dropdown.appendChild(option);
+            });
+        }
+    
+        // Populate the dropdown menu when the page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            populateDropdown();
+        });
+    
+        // Function to handle form submission and plot update
+        document.querySelector('form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/acorn_data', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            // Parse the Plotly JSON data
+            const plotData = JSON.parse(data.plot_json);
+            
+            // Display the plot in the graph container
+            Plotly.newPlot('graph-container', plotData.data, plotData.layout);
+            
+            // Update the table container with the HTML
+            document.getElementById('table-container').innerHTML = data.tables_by_category[Object.keys(data.tables_by_category)[0]]; // Display first category by default
+    
+            // Update the sidebar with links to each MAIN CATEGORY
+            const sidebar = document.getElementById('sidebar');
+            sidebar.innerHTML = '';
+            for (const category in data.tables_by_category) {
+                const link = document.createElement('a');
+                link.classList.add('list-group-item', 'list-group-item-action');
+                link.textContent = category;
+                link.href = '#'; // Add '#' as placeholder for link behavior
+                link.addEventListener('click', function() {
+                    // Remove background color from all links
+                    const allLinks = document.querySelectorAll('.list-group-item');
+                    allLinks.forEach(item => {
+                        item.style.backgroundColor = '';
+                    });
+    
+                    // Apply background color to the clicked link
+                    link.style.backgroundColor = 'green';
+    
+                    // Update the table container with the corresponding table
+                    document.getElementById('table-container').innerHTML = data.tables_by_category[category];
+                });
+                sidebar.appendChild(link);
+            }
+        });
+    </script>
+    
+</body>
+
+
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transatlantic Synergy - KMeans</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Plotly JS -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-success">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='Version_1/Transatlantic Synergy-logos_transparent.png') }}" alt="Transatlantic Synergy Logo" height="75" class="d-inline-block align-middle">
+            Transatlantic Synergy
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">ACORN Details</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/kmeans.html">KMeans</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forecast.html">Forecast</a>
+                </li>
+            </ul>
+        </div>
+    </nav>    
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-9">
+                <h1>K-Means</h1>
+                <p>Dataset link: <a href="https://www.kaggle.com/datasets/jeanmidev/smart-meters-in-london">Smart Meters in London</a></p>
+                <form id="kmeansForm">
+                    <div class="form-group">
+                        <label for="x_axis">X Axis:</label>
+                        <select class="form-control" id="x_axis" name="x_axis">
+                            <option value="Energy Consumption">Energy Consumption</option>	
+                            <option value="Temperature Max">Temperature Max</option>
+                            <option value="Temperature Min">Temperature Min</option>
+                            <option value="Wind Bearing">Wind Bearing</option>
+                            <option value="Dew Point">Dew Point</option>
+                            <option value="Cloud Cover">Cloud Cover</option>
+                            <option value="Apparent Temperature Max">Apparent Temperature Max</option>
+                            <option value="Apparent Temperature Min">Apparent Temperature Min</option>
+                            <option value="Pressure">Pressure</option>
+                            <option value="Precipitation Type">Precipitation Type</option>
+                            <option value="UV Index">UV Index</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="y_axis">Y Axis:</label>
+                        <select class="form-control" id="y_axis" name="y_axis">	
+                            <option value="Temperature Max">Temperature Max</option>
+                            <option value="Temperature Min">Temperature Min</option>
+                            <option value="Wind Bearing">Wind Bearing</option>
+                            <option value="Dew Point">Dew Point</option>
+                            <option value="Cloud Cover">Cloud Cover</option>
+                            <option value="Apparent Temperature Max">Apparent Temperature Max</option>
+                            <option value="Apparent Temperature Min">Apparent Temperature Min</option>
+                            <option value="Pressure">Pressure</option>
+                            <option value="Precipitation Type">Precipitation Type</option>
+                            <option value="UV Index">UV Index</option>
+                            <option value="Energy Consumption">Energy Consumption</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cluster_group">Number of Cluster</label>
+                        <select class="form-control" id="cluster_group" name="cluster_group">
+                            <option value="cluster2">2</option>
+                            <option value="cluster3">3</option>
+                            <option value="cluster4">4</option>
+                            <option value="cluster5">5</option>
+                            <option value="cluster6">6</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Plot</button>
+                </form>
+                <div id="plot"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('kmeansForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/kmeans_data', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                var plot = document.getElementById('plot');
+                Plotly.newPlot(plot, JSON.parse(data.plot_json));
+            });
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

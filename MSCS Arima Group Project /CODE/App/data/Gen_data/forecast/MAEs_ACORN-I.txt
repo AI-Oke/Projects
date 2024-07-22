@@ -1,0 +1,8 @@
+Mean absolute error, baseline: 120.52643382922375
+Mean absolute error, STLARIMA: 48.19775919664926
+Mean absolute error, ARIMA: 61.50294143735468
+Mean absolute error, SARIMA: 89.06486869906843
+Mean Absolute Percentage Error, baseline: 28.936919749941353
+Mean Absolute Percentage Error, STLARIMA: 11.279329493995046
+Mean Absolute Percentage Error, ARIMA: 13.100611693155573
+Mean Absolute Percentage Errorr, SARIMA: 18.84460373141053
